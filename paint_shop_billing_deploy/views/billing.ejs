@@ -1,0 +1,54 @@
+<%- include('partials/header') %>
+<h2>New Bill</h2>
+<div class="pos">
+  <div class="card">
+    <input id="search" placeholder="🔍 Search paint, brand or HSN code..." autofocus autocomplete="off">
+    <div id="tiles" class="tiles"></div>
+    <% if (!products || !products.length) { %><p class="hint">No products in stock. <a href="/inventory/edit">Add a product</a> first.</p><% } %>
+  </div>
+
+  <form method="post" action="/billing" class="card bill">
+    <h3 style="margin:0 0 6px">Tax Invoice Details</h3>
+    
+    <label>Customer / Business Name</label>
+    <input name="cname" placeholder="Walk-in customer / Client name">
+    
+    <div class="two">
+      <div>
+        <label>Customer Phone</label>
+        <input name="cphone" placeholder="e.g. 9876543210">
+      </div>
+      <div>
+        <label>Customer GSTIN (B2B)</label>
+        <input name="cgstin" maxlength="15" style="text-transform:uppercase;" placeholder="15-digit GSTIN (optional)">
+      </div>
+    </div>
+
+    <div class="two" style="margin-top:6px;">
+      <div>
+        <label>Customer Address</label>
+        <input name="caddress" placeholder="City / Area">
+      </div>
+      <div>
+        <label>Sale Type (GST)</label>
+        <select name="inter">
+          <option value="">Intra-State (CGST + SGST)</option>
+          <option value="1">Inter-State (IGST)</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="items" style="margin-top:14px"></div>
+    <p id="empty" class="hint">Tap a product on the left to add it to the bill.</p>
+
+    <div class="tot">
+      <div><span>Taxable Subtotal</span><span>₹<span id="sub">0.00</span></span></div>
+      <div><span>Total GST Tax</span><span>₹<span id="tax">0.00</span></span></div>
+      <div class="g"><span>Grand Total</span><span>₹<span id="tot">0.00</span></span></div>
+    </div>
+    <button id="go" class="btn big" disabled>Generate GST Tax Invoice</button>
+  </form>
+</div>
+<script id="pdata" type="application/json"><%- JSON.stringify(products) %></script>
+<script src="/billing.js"></script>
+<%- include('partials/footer') %>

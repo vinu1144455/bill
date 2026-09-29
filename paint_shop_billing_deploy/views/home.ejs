@@ -1,0 +1,24 @@
+<%- include('partials/header') %>
+<h2>Dashboard</h2>
+<div class="quick">
+  <a class="q p" href="/billing"><i>🧾</i>Create new bill</a>
+  <a class="q" href="/inventory/edit"><i>➕</i>Add a product</a>
+  <a class="q" href="/inventory"><i>🎨</i>Check stock</a>
+  <a class="q" href="/invoices"><i>📚</i>Old bills</a>
+</div>
+<div class="stats">
+  <div class="stat" style="--c:#2a9d8f"><b>₹<%= st.today.toFixed(2) %></b><span>Sales today</span></div>
+  <div class="stat" style="--c:#3556d8"><b>₹<%= st.total.toFixed(2) %></b><span>Total sales (<%= st.bills %> bills)</span></div>
+  <div class="stat" style="--c:#f4a261"><b><%= st.products %></b><span>Products listed</span></div>
+  <div class="stat" style="--c:#e63946"><b><%= low.length %></b><span>Running low</span></div>
+</div>
+<div class="card"><h2>Low stock</h2>
+<% if (low && low.length) { %><table><tr><th>Product</th><th class="n">Left</th><th></th></tr>
+<% low.forEach(function(p) { %><tr><td><%= p.name %> <%= p.brand || '' %></td><td class="n"><%= p.stock %> <%= p.unit %></td>
+<td class="n"><a class="btn g" href="/inventory/edit/<%= p.id %>">Restock</a></td></tr><% }) %></table>
+<% } else { %><p class="hint">Nothing is running low.</p><% } %></div>
+<div class="card"><h2>Recent bills</h2>
+<% if (recent && recent.length) { %><table><tr><th>No.</th><th>Customer</th><th class="n">Total</th></tr>
+<% recent.forEach(function(i) { %><tr><td><a href="/invoice/<%= i.id %>"><%= i.no %></a></td><td><%= i.cname %></td><td class="n">₹<%= Number(i.total).toFixed(2) %></td></tr><% }) %></table>
+<% } else { %><p class="hint">No bills yet. Create the first one.</p><% } %></div>
+<%- include('partials/footer') %>

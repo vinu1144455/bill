@@ -1,0 +1,189 @@
+<%- include('partials/header') %>
+<div class="row noprint" style="margin-bottom:18px;">
+  <a class="btn g" href="/invoices">← Back to All Bills</a>
+  <div style="display:flex; gap:10px;">
+    <a class="btn g" href="/billing">+ New Bill</a>
+    <button class="btn" onclick="window.print()" style="background:#1c7a68;">🖨️ Print GST Invoice</button>
+  </div>
+</div>
+
+<div class="card invoice-card" style="max-width:900px; margin:0 auto; padding:28px; border:2px solid #1b2340; background:#fff; color:#000;">
+  
+  <!-- Invoice Header -->
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #1b2340; padding-bottom:14px;">
+    <div style="max-width:60%;">
+      <h1 style="margin:0 0 4px; font-size:24px; color:#1b2340; text-transform:uppercase;"><%= shop.name %></h1>
+      <% if (shop.address) { %><div style="font-size:13px; line-height:1.4; color:#333;"><%= shop.address %></div><% } %>
+      <div style="font-size:13px; margin-top:4px; color:#333;">
+        <% if (shop.phone) { %><span><b>Phone:</b> <%= shop.phone %></span> &nbsp;|&nbsp; <% } %>
+        <% if (shop.email) { %><span><b>Email:</b> <%= shop.email %></span><% } %>
+      </div>
+      <div style="font-size:14px; margin-top:4px;">
+        <span><b>GSTIN:</b> <span style="font-family:monospace; font-weight:700; font-size:15px; color:#1b2340;"><%= shop.gstin || 'NOT REGISTERED' %></span></span>
+      </div>
+      <div style="font-size:13px; color:#333;">
+        <b>State:</b> <%= shop.state || '27 - Maharashtra' %>
+      </div>
+    </div>
+
+    <div style="text-align:right;">
+      <div style="display:inline-block; border:1px solid #1b2340; padding:4px 12px; font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:8px; background:#f0f2f7;">
+        TAX INVOICE
+      </div>
+      <div style="font-size:14px;"><b>Invoice No:</b> <span style="font-family:monospace; font-weight:700;"><%= inv.no %></span></div>
+      <div style="font-size:13px; margin-top:2px;"><b>Date:</b> <%= inv.date %></div>
+      <div style="font-size:13px; margin-top:2px;"><b>Place of Supply:</b> <%= inv.inter ? 'Inter-State (Other State)' : (shop.state || 'Intra-State') %></div>
+      <div style="font-size:12px; color:#555; margin-top:2px;">Reverse Charge: <b>No</b></div>
+    </div>
+  </div>
+
+  <!-- Buyer / Billed To Section -->
+  <div style="margin:14px 0; padding:10px 12px; background:#f9fafc; border:1px solid #dde2ec; border-radius:6px; display:flex; justify-content:space-between;">
+    <div>
+      <div style="font-size:11px; text-transform:uppercase; font-weight:700; color:#66708a;">Details of Receiver (Billed To):</div>
+      <div style="font-size:15px; font-weight:700; margin-top:2px;"><%= inv.cname %></div>
+      <% if (inv.caddress) { %><div style="font-size:13px; color:#444;"><%= inv.caddress %></div><% } %>
+      <% if (inv.cphone) { %><div style="font-size:13px; color:#444;"><b>Phone:</b> <%= inv.cphone %></div><% } %>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:13px; margin-top:14px;">
+        <b>Customer GSTIN:</b> 
+        <% if (inv.cgstin) { %>
+          <span style="font-family:monospace; font-weight:700;"><%= inv.cgstin %></span>
+        <% } else { %>
+          <span style="color:#66708a;">Unregistered (B2C)</span>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- GST Itemized Table -->
+  <table style="width:100%; border-collapse:collapse; margin-top:14px; font-size:13px;">
+    <thead>
+      <tr style="background:#1b2340; color:#fff;">
+        <th style="padding:8px 6px; text-align:center; width:30px; color:#fff;">#</th>
+        <th style="padding:8px 6px; color:#fff;">Item Description</th>
+        <th style="padding:8px 6px; text-align:center; width:65px; color:#fff;">HSN</th>
+        <th style="padding:8px 6px; text-align:right; width:75px; color:#fff;">Qty</th>
+        <th style="padding:8px 6px; text-align:right; width:70px; color:#fff;">Rate (₹)</th>
+        <th style="padding:8px 6px; text-align:right; width:80px; color:#fff;">Taxable (₹)</th>
+        <% if (inv.inter) { %>
+          <th style="padding:8px 6px; text-align:right; width:90px; color:#fff;">IGST</th>
+        <% } else { %>
+          <th style="padding:8px 6px; text-align:right; width:70px; color:#fff;">CGST</th>
+          <th style="padding:8px 6px; text-align:right; width:70px; color:#fff;">SGST</th>
+        <% } %>
+        <th style="padding:8px 6px; text-align:right; width:90px; color:#fff;">Total (₹)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% items.forEach(function(i, idx) { 
+        const t = i.amt * i.gst / 100;
+        const halfGst = i.gst / 2;
+        const halfTax = t / 2;
+      %>
+      <tr style="border-bottom:1px solid #dde2ec;">
+        <td style="padding:8px 6px; text-align:center;"><%= idx + 1 %></td>
+        <td style="padding:8px 6px;">
+          <b><%= i.pname %></b>
+        </td>
+        <td style="padding:8px 6px; text-align:center; font-family:monospace;"><%= i.hsn %></td>
+        <td style="padding:8px 6px; text-align:right;"><%= i.qty %> <%= i.unit %></td>
+        <td style="padding:8px 6px; text-align:right;"><%= Number(i.price).toFixed(2) %></td>
+        <td style="padding:8px 6px; text-align:right;"><%= Number(i.amt).toFixed(2) %></td>
+        <% if (inv.inter) { %>
+          <td style="padding:8px 6px; text-align:right;">
+            <div style="font-size:11px; color:#66708a;"><%= i.gst %>%</div>
+            <%= Number(t).toFixed(2) %>
+          </td>
+        <% } else { %>
+          <td style="padding:8px 6px; text-align:right;">
+            <div style="font-size:11px; color:#66708a;"><%= halfGst %>%</div>
+            <%= Number(halfTax).toFixed(2) %>
+          </td>
+          <td style="padding:8px 6px; text-align:right;">
+            <div style="font-size:11px; color:#66708a;"><%= halfGst %>%</div>
+            <%= Number(halfTax).toFixed(2) %>
+          </td>
+        <% } %>
+        <td style="padding:8px 6px; text-align:right; font-weight:700;"><%= Number(i.amt + t).toFixed(2) %></td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+
+  <!-- Calculation Summary & In Words -->
+  <div style="display:flex; justify-content:space-between; margin-top:16px; align-items:flex-start;">
+    
+    <!-- Left: Amount in Words & Bank Info -->
+    <div style="max-width:55%;">
+      <div style="padding:8px 10px; background:#f0f2f7; border-radius:6px; border-left:4px solid #1b2340; font-size:13px;">
+        <b>Invoice Value in Words:</b><br>
+        <span style="font-style:italic;"><%= typeof numberToWordsINR === 'function' ? numberToWordsINR(inv.total) : ('Rupees ' + inv.total + ' Only') %></span>
+      </div>
+
+      <% if (shop.bankName || shop.bankAccount) { %>
+      <div style="margin-top:10px; font-size:12px; border:1px dashed #c5cce0; padding:6px 10px; border-radius:6px;">
+        <b>Bank Details for Payment:</b><br>
+        <% if (shop.bankName) { %>Bank: <b><%= shop.bankName %></b> &nbsp;|&nbsp; <% } %>
+        <% if (shop.bankAccount) { %>A/C: <b><%= shop.bankAccount %></b><br><% } %>
+        <% if (shop.bankIfsc) { %>IFSC Code: <b><%= shop.bankIfsc %></b><% } %>
+      </div>
+      <% } %>
+
+      <div style="margin-top:10px; font-size:11px; color:#555; white-space:pre-line;">
+        <b>Terms & Conditions:</b><br><%= shop.terms || '1. Goods once sold will not be taken back.\n2. Certified that all particulars given above are true and correct.' %>
+      </div>
+    </div>
+
+    <!-- Right: Totals Box -->
+    <div style="width:40%;">
+      <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <tr>
+          <td style="padding:5px 0; color:#555;">Total Taxable Amount:</td>
+          <td style="padding:5px 0; text-align:right; font-weight:600;">₹<%= Number(inv.sub).toFixed(2) %></td>
+        </tr>
+        <% if (inv.inter) { %>
+        <tr>
+          <td style="padding:5px 0; color:#555;">Integrated Tax (IGST):</td>
+          <td style="padding:5px 0; text-align:right; font-weight:600;">₹<%= Number(inv.tax).toFixed(2) %></td>
+        </tr>
+        <% } else { %>
+        <tr>
+          <td style="padding:5px 0; color:#555;">Central Tax (CGST):</td>
+          <td style="padding:5px 0; text-align:right; font-weight:600;">₹<%= (inv.tax / 2).toFixed(2) %></td>
+        </tr>
+        <tr>
+          <td style="padding:5px 0; color:#555;">State Tax (SGST):</td>
+          <td style="padding:5px 0; text-align:right; font-weight:600;">₹<%= (inv.tax / 2).toFixed(2) %></td>
+        </tr>
+        <% } %>
+        <tr style="border-top:1px solid #1b2340;">
+          <td style="padding:5px 0; color:#555;">Total GST Tax:</td>
+          <td style="padding:5px 0; text-align:right; font-weight:600;">₹<%= Number(inv.tax).toFixed(2) %></td>
+        </tr>
+        <tr style="border-top:2px solid #1b2340; border-bottom:2px solid #1b2340; font-size:16px;">
+          <td style="padding:8px 0; font-weight:700;">Grand Total (₹):</td>
+          <td style="padding:8px 0; text-align:right; font-weight:700; color:#1b2340;">₹<%= Number(inv.total).toFixed(2) %></td>
+        </tr>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- Signatory & Declaration -->
+  <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:28px; padding-top:14px; border-top:1px solid #dde2ec;">
+    <div style="font-size:11px; color:#66708a; max-width:55%;">
+      This is a computer generated invoice conforming to GST rules in India.
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:12px; font-weight:700;">For <%= shop.name %></div>
+      <div style="height:45px;"></div>
+      <div style="font-size:12px; border-top:1px solid #1b2340; padding-top:4px; display:inline-block; min-width:160px; text-align:center;">
+        Authorized Signatory
+      </div>
+    </div>
+  </div>
+
+</div>
+<%- include('partials/footer') %>

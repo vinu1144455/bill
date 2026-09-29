@@ -1,0 +1,12 @@
+<%- include('partials/header') %>
+<div class="row"><h2 style="margin:0">Inventory</h2><div style="display:flex;gap:10px"><input id="q" placeholder="Search products" style="width:220px">
+<a class="btn" href="/inventory/edit">Add product</a></div></div>
+<div class="card" style="overflow-x:auto"><table id="t"><tr><th>Product</th><th>Brand</th><th>HSN</th><th class="n">Price</th><th class="n">GST</th><th class="n">Stock</th><th></th></tr>
+<% if (rows && rows.length) { %>
+<% rows.forEach(function(p) { %><tr><td><%= p.name %></td><td><%= p.brand || '' %></td><td><%= p.hsn %></td><td class="n">₹<%= Number(p.price).toFixed(2) %>/<%= p.unit %></td>
+<td class="n"><%= p.gst %>%</td><td class="n"><span class="tag <%= p.stock <= p.low ? 'low' : '' %>"><%= p.stock %> <%= p.unit %></span></td>
+<td class="n"><a class="btn g" href="/inventory/edit/<%= p.id %>">Edit</a>
+<form method="post" action="/inventory/delete/<%= p.id %>" style="display:inline" onsubmit="return confirm('Delete this product?')"><button class="btn r">Delete</button></form></td></tr><% }) %>
+<% } else { %><tr><td colspan="7">No products yet. Add your first paint or accessory.</td></tr><% } %></table></div>
+<script>q.oninput=()=>document.querySelectorAll('#t tr').forEach((r,i)=>{if(i)r.style.display=r.textContent.toLowerCase().includes(q.value.toLowerCase())?'':'none'})</script>
+<%- include('partials/footer') %>

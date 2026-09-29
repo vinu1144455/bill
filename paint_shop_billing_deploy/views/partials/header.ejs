@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title><%= user ? user : 'Paint Shop Billing' %></title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="<%= user ? 'app' : '' %>">
+<% if (user) { %>
+<aside>
+  <div class="brand"><h1><%= user %></h1><span><%= shop.name %></span></div>
+  <nav>
+    <a href="/billing" class="<%= typeof active !== 'undefined' && active === 'billing' ? 'on' : '' %>"><i>🧾</i>New bill</a>
+    <a href="/" class="<%= typeof active !== 'undefined' && active === 'home' ? 'on' : '' %>"><i>🏠</i>Dashboard</a>
+    <a href="/invoices" class="<%= typeof active !== 'undefined' && active === 'invoices' ? 'on' : '' %>"><i>📚</i>All bills</a>
+    <a href="/inventory" class="<%= typeof active !== 'undefined' && (active === 'inventory' || active === 'product') ? 'on' : '' %>"><i>🎨</i>Inventory</a>
+    <a href="/settings" class="<%= typeof active !== 'undefined' && active === 'settings' ? 'on' : '' %>"><i>⚙️</i>Shop details</a>
+  </nav>
+  <a class="out" href="/logout"><i style="font-style:normal">🚪</i>Log out</a>
+</aside>
+<% } %>
+<main>
+  <% if (typeof flash !== 'undefined' && flash && flash.length) { %>
+    <% flash.forEach(function(m) { %><div class="flash"><%= m %></div><% }) %>
+  <% } %>

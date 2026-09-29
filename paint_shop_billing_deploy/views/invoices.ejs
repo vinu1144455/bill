@@ -1,0 +1,8 @@
+<%- include('partials/header') %>
+<h2>Bills</h2><div class="card" style="overflow-x:auto"><table>
+<tr><th>No.</th><th>Date</th><th>Customer</th><th class="n">GST</th><th class="n">Total</th></tr>
+<% if (rows && rows.length) { %>
+<% rows.forEach(function(i) { %><tr><td><a href="/invoice/<%= i.id %>"><%= i.no %></a></td><td><%= i.date %></td><td><%= i.cname %></td>
+<td class="n">₹<%= Number(i.tax).toFixed(2) %></td><td class="n">₹<%= Number(i.total).toFixed(2) %></td></tr><% }) %>
+<% } else { %><tr><td colspan="5">No bills yet.</td></tr><% } %></table></div>
+<%- include('partials/footer') %>

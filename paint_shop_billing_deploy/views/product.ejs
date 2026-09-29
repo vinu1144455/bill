@@ -1,0 +1,13 @@
+<%- include('partials/header') %>
+<div class="card" style="max-width:760px"><h2><%= p ? 'Edit product' : 'Add product' %></h2>
+<form method="post" action="<%= p ? '/inventory/edit/' + p.id : '/inventory/edit' %>"><div class="grid">
+<div><label>Product name</label><input name="name" required value="<%= p ? p.name : '' %>" placeholder="Premium emulsion white"></div>
+<div><label>Brand</label><input name="brand" value="<%= p ? p.brand : '' %>"></div>
+<div><label>HSN code</label><input name="hsn" value="<%= p ? p.hsn : '3208' %>"></div>
+<div><label>Unit</label><select name="unit"><% ['L','Kg','Pc','Set'].forEach(function(u) { %><option <%= p && p.unit === u ? 'selected' : '' %>><%= u %></option><% }) %></select></div>
+<div><label>Price per unit (excl. GST)</label><input name="price" type="number" step="0.01" min="0" required value="<%= p ? p.price : '' %>"></div>
+<div><label>GST rate</label><select name="gst"><% [5,12,18,28].forEach(function(r) { %><option value="<%= r %>" <%= (p && p.gst === r) || (!p && r === 18) ? 'selected' : '' %>><%= r %>%</option><% }) %></select></div>
+<div><label>Stock available</label><input name="stock" type="number" step="any" min="0" required value="<%= p ? p.stock : 0 %>"></div>
+<div><label>Warn when stock is at or below</label><input name="low" type="number" step="any" min="0" value="<%= p ? p.low : 5 %>"></div></div><br>
+<button class="btn">Save product</button> <a class="btn g" href="/inventory">Cancel</a></form></div>
+<%- include('partials/footer') %>

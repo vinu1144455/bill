@@ -1,0 +1,154 @@
+<%- include('partials/header') %>
+<style>
+  .auth-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--line);
+    background: #f7f9fd;
+  }
+  .auth-tab {
+    flex: 1;
+    text-align: center;
+    padding: 14px 10px;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--mut);
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    background: none;
+    transition: all 0.2s;
+  }
+  .auth-tab.active {
+    color: var(--acc);
+    background: #fff;
+    border-bottom: 3px solid var(--acc);
+  }
+  .auth-form {
+    padding: 24px;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--acc);
+    margin: 18px 0 10px;
+    border-bottom: 1px dashed var(--line);
+    padding-bottom: 4px;
+  }
+</style>
+
+<div class="login" style="min-height:90vh; padding:30px 15px;">
+  <div class="card" style="width:100%; max-width:560px; padding:0; overflow:hidden; box-shadow:0 8px 30px rgba(0,0,0,0.08);">
+    <div class="strip">
+      <i style="background:#e63946"></i>
+      <i style="background:#f4a261"></i>
+      <i style="background:#2a9d8f"></i>
+      <i style="background:#457b9d"></i>
+      <i style="background:#8d5fd3"></i>
+    </div>
+
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab <%= tab === 'login' ? 'active' : '' %>" onclick="switchTab('login')">Log In</button>
+      <button type="button" class="auth-tab <%= tab === 'register' ? 'active' : '' %>" onclick="switchTab('register')">Create Account (New Shop)</button>
+    </div>
+
+    <!-- Log In Form -->
+    <form id="loginForm" method="post" action="/login" class="auth-form" style="<%= tab === 'login' ? 'display:block;' : 'display:none;' %>">
+      <h1 style="margin:0 0 4px; font-size:24px;">Welcome back</h1>
+      <p class="hint" style="margin:0 0 16px;">Log in to access your shop's GST invoices, inventory, and sales.</p>
+      
+      <% if (typeof flash !== 'undefined' && flash && flash.length) { %>
+        <% flash.forEach(function(m) { %><div class="flash"><%= m %></div><% }) %>
+      <% } %>
+
+      <label>Username</label>
+      <input name="username" required autofocus placeholder="Enter your username">
+      
+      <label style="margin-top:14px">Password</label>
+      <input name="password" type="password" required placeholder="••••••••">
+      
+      <button class="btn big" style="margin-top:20px">Log In</button>
+      <p class="hint" style="text-align:center; margin-top:16px; font-size:14px;">
+        New shopkeeper? <a href="javascript:switchTab('register')">Create an account here</a>
+      </p>
+    </form>
+
+    <!-- Create Account Form with Shop & GST Details -->
+    <form id="registerForm" method="post" action="/register" class="auth-form" style="<%= tab === 'register' ? 'display:block;' : 'display:none;' %>">
+      <h1 style="margin:0 0 4px; font-size:24px;">Register New Shop</h1>
+      <p class="hint" style="margin:0 0 12px;">Fill in your shop & GST information to generate government-compliant GST tax invoices.</p>
+      
+      <% if (typeof flash !== 'undefined' && flash && flash.length) { %>
+        <% flash.forEach(function(m) { %><div class="flash"><%= m %></div><% }) %>
+      <% } %>
+
+      <div class="section-title">1. Account Credentials</div>
+      <div class="two">
+        <div>
+          <label>Username *</label>
+          <input name="username" required placeholder="e.g. sharma_paints">
+        </div>
+        <div>
+          <label>Password *</label>
+          <input name="password" type="password" required minlength="4" placeholder="Min 4 characters">
+        </div>
+      </div>
+
+      <div class="section-title">2. Shop & GST Details (As per Govt. rules)</div>
+      <div>
+        <label>Shop / Business Name *</label>
+        <input name="shopName" required placeholder="e.g. Sharma Paint & Hardware Store">
+      </div>
+
+      <div class="two" style="margin-top:10px;">
+        <div>
+          <label>Shop GSTIN (15-digit GST No.)</label>
+          <input name="gstin" maxlength="15" placeholder="e.g. 27AAPFU0939F1ZV" style="text-transform:uppercase;">
+          <small class="hint" style="font-size:11px;">Mandatory for GST registered dealers</small>
+        </div>
+        <div>
+          <label>State & State Code *</label>
+          <select name="state">
+            <% (typeof states !== 'undefined' ? states : []).forEach(function(st) { %>
+              <option value="<%= st %>" <%= st.includes('27') ? 'selected' : '' %>><%= st %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+
+      <div class="two" style="margin-top:10px;">
+        <div>
+          <label>Phone / Mobile No. *</label>
+          <input name="phone" required placeholder="e.g. +91 9876543210">
+        </div>
+        <div>
+          <label>Email Address</label>
+          <input name="email" type="email" placeholder="e.g. contact@sharmapaints.com">
+        </div>
+      </div>
+
+      <div style="margin-top:10px;">
+        <label>Shop Address</label>
+        <input name="address" placeholder="Shop No., Street, Area, City, Pincode">
+      </div>
+
+      <button class="btn big" style="margin-top:22px; background:#1c7a68;">Create Account & Setup GST Billing</button>
+      <p class="hint" style="text-align:center; margin-top:14px; font-size:14px;">
+        Already registered? <a href="javascript:switchTab('login')">Log in to your account</a>
+      </p>
+    </form>
+
+  </div>
+</div>
+
+<script>
+  function switchTab(t) {
+    document.querySelectorAll('.auth-tab').forEach((el, idx) => {
+      el.classList.toggle('active', (t === 'login' && idx === 0) || (t === 'register' && idx === 1));
+    });
+    document.getElementById('loginForm').style.display = t === 'login' ? 'block' : 'none';
+    document.getElementById('registerForm').style.display = t === 'register' ? 'block' : 'none';
+  }
+</script>
+<%- include('partials/footer') %>
